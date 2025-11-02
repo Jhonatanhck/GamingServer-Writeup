@@ -1,5 +1,5 @@
 
-# Writeup: Escalation y Privilegios en TryHackMe
+# Writeup: GamingServer
 
 Empezamos con la el escaneo de puertos
 
