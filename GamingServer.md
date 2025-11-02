@@ -1,5 +1,7 @@
 
-## Empezamos con el escaneo de puertos
+# Writeup: Escalation y Privilegios en TryHackMe
+
+Empezamos con la el escaneo de puertos
 
 ![Nmap scan](images/Pasted%20image%2020251102154836.png)
 
@@ -7,21 +9,21 @@ Obtenemos estos resultados
 
 ![Nmap results](images/Pasted%20image%2020251102154913.png)
 
-Agregamos la página al `/etc/hosts`
+Agregamos la pagina al /etc/hosts
 
 ![Hosts edit](images/Pasted%20image%2020251102155326.png)
 
-y accedemos
+y accedemos 
 
 ![Web access](images/Pasted%20image%2020251102155344.png)
 
-Vemos los recursos de la página
+vemos los recursos de la pagina 
 
 ![Page resources](images/Pasted%20image%2020251102155541.png)
 
-Vemos un mensaje de un usuario llamado **john**, el nombre tal vez nos sirva después si queremos logearnos en algún lado.
+vemos un mensaje de un usuario llamado john, el nombre tal vez nos sirva despues si queremos logearnos en algun lado
 
-Se me ocurre hacer un ataque de fuerza bruta de directorios
+se me ocurre hacer un ataque de fuerza bruta de directorios 
 
 ![ffuf run](images/Pasted%20image%2020251102160929.png)
  
@@ -73,29 +75,27 @@ Se me ocurre hacer un ataque de fuerza bruta de directorios
     
     _Es por eso que en tus resultados aparecieron `.htaccess` (el intento normal) y también `.htaccess.txt` (el intento con la extensión `-e`)._
 
-
-
-## Continuando con el ataque
+Continuando con el ataque 
 
 ![ffuf results](images/Pasted%20image%2020251102161407.png)
 
-Vemos que el comando nos devolvió directorios ocultos que antes no veíamos.
+vemos que el comando nos devolvio directorios ocultos que antes no veiamos 
 
-Accedemos a `/robots.txt` y vemos esto:
+accedemos a /robots.txt y vemos esto
 
 ![robots.txt](images/Pasted%20image%2020251102161731.png)
 
-Cuando accedemos a `/uploads/` vemos esto:
+Cuando accedemos a /uploads/ vemos esto
 
 ![uploads listing](images/Pasted%20image%2020251102161858.png)
 
-Obtenemos 3 archivos:
+obtenemos 3 archivos 
 
-Una lista de contraseñas
+Una lista de contrasenas
 
-![password list](images/Pasted%20image%2020251102161943.png)
+![password list](images/Pasted%20image%2020251102161943.png)  
 
-Una especie de carta
+Una especie de carta 
 
 ![note file](images/Pasted%20image%2020251102162016.png)
 
@@ -103,38 +103,37 @@ Y un MEME xd
 
 ![meme](images/Pasted%20image%2020251102162051.png)
 
-Cuando queremos extraer datos de la imagen vemos que nos pide contraseña:
+Cuando queremos extraer datos de la imagen vemos que nos pide contrasena
 
 ![image password prompt](images/Pasted%20image%2020251102162820.png)
 
-Ahora vamos al directorio `http://IP/secret`:
+ahora vamos al directorio http://IP/secret 
 
 ![secret page](images/Pasted%20image%2020251102163051.png)
 
-Vemos que guarda una clave; la podemos usar haciendo fuerza bruta con la lista de contraseñas que obtuvimos anteriormente.
+y vemos que guarda una clave, la podemos usar haciendo fuerza bruta con la lista de contrasenas que obtuvimos anterior mente
 
-Ojo a estos pasos: me pusieron a pensar e investigar varias cosas.
+ojo a estos pasos que me pusieron a pensar y a investigar varias cosas
 
-Nos creamos un archivo con la private key (yo lo llamé `id_rsa`) que contiene la clave de arriba.
+Nos creamos un archivo con la private key yo lo llame "id_rsa" que contenga la clave de arriba 
 
-Ahora utilizamos un script de la herramienta John (ssh2john):
+ahora utilizamos un script de la herramienta john
 
 ![ssh2john](images/Pasted%20image%2020251102164759.png)
 
-Esto convierte `id_rsa` a un formato que John puede leer (hash):
+esto lo que hace es que convierte nuestro archivo id_rsa a un idioma que john lo pueda leer como lo es hash
 
 ![id_rsa hash](images/Pasted%20image%2020251102164846.png)
 
-El siguiente paso es usar John para crackear la contraseña:
+esta es la llave hasheada 
+
+ahora el siguiente paso es volver a utilizar la herramienta john para crackear la contrasena 
 
 ![john cracking](images/Pasted%20image%2020251102164943.png)
 
-Le indicamos el archivo hasheado y `-w` con la lista de contraseñas que extrajimos de `/uploads/`:
+le indicamos el archivo hasheado y -w para la lista de contrasenas que queremos que prueba, en nuestro caso fue la que extraimos de /uploads/
 
 ![john wordlist](images/Pasted%20image%2020251102165042.png)
-
-
-![[Pasted image 20251102165042.png]]
 
 aqui nos da un error pero ya tenemos la contrasena que es letmein 
 
@@ -144,17 +143,17 @@ para solucionarlo solo tenemos que hacer esto chmod 600 id_rsa
 
 ya con eso podremos ejecutar el comando
 
-![[Pasted image 20251102165233.png]]
+![ssh login](images/Pasted%20image%2020251102165233.png)
 
 ya estamos dentro de john utilizando la llave y su contrasena letmein
 
 aqui tenemos la primera flag
 
-![[Pasted image 20251102165324.png]]
+![first flag](images/Pasted%20image%2020251102165324.png)
 
 vemos que estamos en muchos grupos interesante 
 
-![[Pasted image 20251102165425.png]]
+![groups](images/Pasted%20image%2020251102165425.png)
 
 investigando un poco descubri que lxd es un proceso que puede ser corrido como root
 
@@ -162,52 +161,56 @@ despues de investigar mucho y preguntarle a chatgpt y a gemini muchas cosas
 
 descubri que estar en el grupo lxd te da casi permisos de ser root porque te da todos los permisos de crear contenedores entonces vamos a crear un contenedor malicioso que nos de acceso a toda la maquina 
 
-![[Pasted image 20251102173328.png]]
+![download tool](images/Pasted%20image%2020251102173328.png)
 
 Descargamos la herramienta que es lo primero que tenemos que haces para crear nuestro contenedor
 
 Entramos a la rama de github para crear el contenedor como nos dice en la pagina de github
 
-![[Pasted image 20251102173505.png]]
+![github clone](images/Pasted%20image%2020251102173505.png)
 
-
-![[Pasted image 20251102173601.png]]
+![github repo](images/Pasted%20image%2020251102173601.png)
 
 ahora abrimos un servidor temporal para llevarnos el archivo a la maquina victima, esto hace que nuestra maquina atacante se convierta en un servidor de descargas temporal
 
 nos descargamos el archivo desde el servidor que abrimos
 
-![[Pasted image 20251102173731.png]]
+![http server download](images/Pasted%20image%2020251102173731.png)
 
 aqui le dijimos a lxd que tenga ese archivo y registralo como una nueva imagen de contenedor y registralo con el nombre myimage
 
-![[Pasted image 20251102173831.png]]
+![lxd image import](images/Pasted%20image%2020251102173831.png)
 
 aqui cree un nuevo contenedor llamado ignite usando myimage
-![[Pasted image 20251102174038.png]]
+
+![create container](images/Pasted%20image%2020251102174038.png)
 
 aqui le decimos que -c security.privileged=true o sea quiero que este contenedor se ejecute en modo privilegiado esto significa que el usuario root dentro del contenedor sera tratado com el usuario root fuera del contenedor 
 
+![set privileged](images/Pasted%20image%2020251102174350.png)
 
 aqui cambiamos la configuracion del contenedor ignite (que estaba apagado todavia)
-![[Pasted image 20251102174350.png]]
+
+![container config](images/Pasted%20image%2020251102174350.png)
 
 y el TRUCO es este le dijimos a lxc toma el disco duro raiz "souce=/" de la maquina victima y montalo dentro del contenedor ignite en la carpeta /mnt/root
 
 aqui encendemos el contenedor
-![[Pasted image 20251102174806.png]]
+
+![start container](images/Pasted%20image%2020251102174806.png)
 
 el contenedor ahora esta corriendo con el disco duro completo de la maquina victima montado en su interior
 
 aqui ejecutamos el comando /bin/sh dentro del contenedor
-![[Pasted image 20251102174916.png]]
+
+![exec sh](images/Pasted%20image%2020251102174916.png)
 
 esto nos dio una terminal shell dentro del contenedor 
 
-![[Pasted image 20251102175149.png]]
+![container shell](images/Pasted%20image%2020251102175149.png)
 y aqui nos convertimos en root
 
-![[Pasted image 20251102175221.png]]
+![root flag](images/Pasted%20image%2020251102175221.png)
 aqui esta la flag
 
-sabiamos que estaba en /mnt/root/ porque fue el directorio que le pasamos anteriormente 
+sabiamos que estaba en /mnt/root/ porque fue el directorio que le pasamos anteriormente
