@@ -1,217 +1,184 @@
 
-Empezamos con la el escaneo de puertos
+## 1) Escaneo de puertos
 
-![[Pasted%20image%2020251102154836.png]]
+Empezamos con el escaneo de puertos.
 
-Obtenemos estos resultados
+![Nmap scan](images/pasted-20251102154836.png)
 
-![[Pasted image 20251102154913.png]]
+Obtenemos estos resultados:
 
-Agregamos la pagina al /etc/hosts
+![Nmap results](images/pasted-20251102154913.png)
 
-![[Pasted image 20251102155326.png]]
+---
 
-y accedemos 
+## 2) Añadir la página al `/etc/hosts` y acceder
 
-![[Pasted image 20251102155344.png]]
+Agregamos la página al `/etc/hosts` y accedemos.
 
-vemos los recursos de la pagina 
+![Hosts edit](images/pasted-20251102155326.png)
 
-![[Pasted image 20251102155541.png]]
+![Web access](images/pasted-20251102155344.png)
 
-vemos un mensaje de un usuario llamado john, el nombre tal vez nos sirva despues si queremos logearnos en algun lado
+Vemos los recursos de la página:
 
-se me ocurre hacer un ataque de fuerza bruta de directorios 
+![Page resources](images/pasted-20251102155541.png)
 
-![[Pasted image 20251102160929.png]]
- 
-`ffuf` probó 9,228 nombres de la lista y te mostró solo los que obtuvieron una respuesta interesante
+> Nota: aparece un mensaje de un usuario llamado **john**. Ese nombre puede ser útil más adelante si necesitamos intentar un login.
 
-# Explicacion del comando:
+---
 
-### `ffuf`
+## 3) Fuerza bruta de directorios con `ffuf`
 
-- **Qué es:** Es el nombre del programa que estás ejecutando: **F**uzz **F**aster **U** **F**ool.
-    
-- **Propósito:** Le dice a tu terminal que "ejecute la aplicación `ffuf`".
+Se me ocurre hacer un ataque de fuerza bruta de directorios.
 
+![ffuf run](images/pasted-20251102160929.png)
 
-### `-u http://10.10.195.192/FUZZ`
+`ffuf` probó 9,228 nombres de la lista y te mostró solo los que obtuvieron una respuesta interesante.
 
+### Explicación del comando
 
-- **`-u` (URL):** Es un "flag" o interruptor que le dice a `ffuf`, "lo que viene a continuación es la URL que quiero atacar".
-    
-- **`http://10.10.195.192/`**: Esta es la URL base de tu objetivo.
-    
-- **`FUZZ`**: Esta es la parte más importante. Es una palabra clave especial que `ffuf` reconoce. Significa: "Aquí es donde quiero que inyectes las palabras". `ffuf` tomará cada línea de tu lista de palabras (`-w`) y la pondrá en el lugar de `FUZZ`.
-    
-    - Intento 1: `http://10.10.195.192/`**`index.html`**
-        
-    - Intento 2: `http://10.10.195.192/`**`robots.txt`**
-        
-    - Intento 3: `http://10.10.195.192/`**`secret`**
-        
-    - ...etc.
+#### `ffuf`
+- **Qué es:** Es la herramienta `ffuf` (Fuzz Faster U Fool).
+- **Propósito:** Ejecutar ataques de fuzzing / brute-force en URLs.
 
-### `-w /usr/share/wordlists/dirb/common.txt`
+#### `-u http://10.10.195.192/FUZZ`
+- **`-u` (URL):** indica la URL objetivo.
+- **`FUZZ`**: marcador donde `ffuf` reemplaza con cada entrada de la wordlist (ej. `index.html`, `robots.txt`, `secret`).
 
-- **`-w` (Wordlist):** Es otro "flag" que le dice a `ffuf`, "lo que viene a continuación es la ruta al archivo de texto que quiero usar como mi diccionario de adivinanzas".
-    
-- **`/usr/share/wordlists/dirb/common.txt`**: Esta es la ruta completa en tu sistema de archivos (probablemente Kali Linux) que apunta a un archivo de texto muy popular (`common.txt`) que viene con la herramienta `dirb`. Contiene una lista de miles de nombres comunes de archivos y directorios (`admin`, `login`, `uploads`, `config`, etc.).
+#### `-w /usr/share/wordlists/dirb/common.txt`
+- **`-w` (wordlist):** ruta al archivo con las palabras a probar.
 
+#### `-e .txt`
+- **`-e` (extension):** también prueba cada palabra con la extensión `.txt` (p.ej. `secret` y `secret.txt`).
 
-### `-e .txt`
+Continuando con el ataque:
 
-- **`-e` (Extension):** Es un "flag" que significa "extensión".
-    
-- **`.txt`**: Le dice a `ffuf`: "Por cada palabra en mi _wordlist_, quiero que la pruebes dos veces:
-    
-    1. Una vez tal como está (ej. `secret`).
-        
-    2. Y una segunda vez añadiendo esta extensión (ej. `secret.txt`)".
-        
-    
-    _Es por eso que en tus resultados aparecieron `.htaccess` (el intento normal) y también `.htaccess.txt` (el intento con la extensión `-e`)._
+![ffuf results](images/pasted-20251102161407.png)
 
+Vemos que el comando nos devolvió directorios escondidos.
 
+---
 
-Continuando con el ataque 
+## 4) Revisar `/robots.txt` y `/uploads`
 
-![[Pasted image 20251102161407.png]]
+Accedemos a `/robots.txt`:
 
-vemos que el comando nos devolvio directorios ocultos que antes no veiamos 
+![robots.txt](images/pasted-20251102161731.png)
 
-accedemos a /robots.txt y vemos esto
-![[Pasted image 20251102161731.png]]
+Accedemos a `/uploads/` y vemos 3 archivos:
 
-Cuando accedemos a /uploads/ vemos esto
+![uploads listing](images/pasted-20251102161858.png)
 
-![[Pasted image 20251102161858.png]]
+- Una lista de contraseñas:
 
-obtenemos 3 archivos 
+![password list](images/pasted-20251102161943.png)
 
-Una lista de contrasenas
+- Una especie de carta:
 
-![[Pasted image 20251102161943.png]]  
+![note file](images/pasted-20251102162016.png)
 
-Una especie de carta 
+- Un meme:
 
-![[Pasted image 20251102162016.png]]
+![meme](images/pasted-20251102162051.png)
 
-Y un MEME xd
+Al intentar extraer datos de la imagen nos pide contraseña:
 
-![[Pasted image 20251102162051.png]]
+![image password prompt](images/pasted-20251102162820.png)
 
-Cuando queremos extraer datos de la imagen vemos que nos pide contrasena
+---
 
-![[Pasted image 20251102162820.png]]
+## 5) Directorio `/secret` y la clave
 
-ahora vamos al directorio http://IP/secret 
+Visitamos `http://IP/secret` y vemos que contiene una clave:
 
-![[Pasted image 20251102163051.png]]
+![secret page](images/pasted-20251102163051.png)
 
+Podemos usar la lista de contraseñas obtenida en `/uploads/` para intentar descifrar la clave.
 
-y vemos que guarda una clave, la podemos usar haciendo fuerza bruta con la lista de contrasenas que obtuvimos anterior mente
+---
 
-ojo a estos pasos que me pusieron a pensar y a investigar varias cosas
+## 6) Preparar la `private key` y usar `john`
 
-Nos creamos un archivo con la private key yo lo llame "id_rsa" que contenga la clave de arriba 
+Creamos un archivo llamado `id_rsa` que contiene la clave privada encontrada.
 
-ahora utilizamos un script de la herramienta john
+Usamos `ssh2john.py` (u otro script) para convertir la llave a un formato que John pueda leer:
 
-![[Pasted image 20251102164759.png]]
+![ssh2john](images/pasted-20251102164759.png)
 
-esto lo que hace es que convierte nuestro archivo id_rsa a un idioma que john lo pueda leer como lo es hash
+Esto genera la llave hasheada:
 
-![[Pasted image 20251102164846.png]]
+![id_rsa hash](images/pasted-20251102164846.png)
 
-esta es la llave hasheada 
+Luego usamos `john` para intentar crackear la contraseña usando la lista extraída de `/uploads/`:
 
-ahora el siguiente paso es volver a utilizar la herramienta john para crackear la contrasena 
+![john cracking](images/pasted-20251102164943.png)
 
-![[Pasted image 20251102164943.png]]
+Al principio recibimos un error porque `id_rsa` no tenía permisos correctos. Cambiamos los permisos:
 
-le indicamos el archivo hasheado y -w para la lista de contrasenas que queremos que prueba, en nuestro caso fue la que extraimos de /uploads/
+```bash
+chmod 600 id_rsa
 
-![[Pasted image 20251102165042.png]]
+## 7) Conexión SSH, enumeración y descubrimiento del grupo `lxd`
 
-aqui nos da un error pero ya tenemos la contrasena que es letmein 
+Tras ajustar permisos y usar la clave (id_rsa) con su contraseña `letmein`, iniciamos sesión como **john**:
 
-el error es debido a que no le dimos los permios requeridos a id_rsa que es la clave con la que nos conectaremos a john que fue el usuario que vimos anterior mente
+![login john](images/pasted-20251102165233.png)
 
-para solucionarlo solo tenemos que hacer esto chmod 600 id_rsa
+Dentro del home de john obtenemos la primera flag:
 
-ya con eso podremos ejecutar el comando
+![first flag](images/pasted-20251102165324.png)
 
-![[Pasted image 20251102165233.png]]
+Al revisar los grupos a los que pertenece el usuario vemos varios, entre ellos `lxd`:
 
-ya estamos dentro de john utilizando la llave y su contrasena letmein
+![groups john](images/pasted-20251102165425.png)
 
-aqui tenemos la primera flag
+---
 
-![[Pasted image 20251102165324.png]]
+## 8) Escalada a root aprovechando LXD
 
-vemos que estamos en muchos grupos interesante 
+Investigué LXD y confirmé que estar en el grupo `lxd` permite crear y gestionar contenedores —si se abusa de eso, puede conducir a una escalada de privilegios. Decidimos crear un contenedor malicioso para obtener acceso completo a la máquina.
 
-![[Pasted image 20251102165425.png]]
+Primero descargamos la herramienta / payload que usaremos para la imagen del contenedor:
 
+![download tool](images/pasted-20251102173328.png)
 
-investigando un poco descubri que lxd es un proceso que puede ser corrido como root
+Clonamos / revisamos la rama en GitHub (según la guía usada):
 
-despues de investigar mucho y preguntarle a chatgpt y a gemini muchas cosas
+![github clone](images/pasted-20251102173505.png)  
+![github repo](images/pasted-20251102173601.png)
 
-descubri que estar en el grupo lxd te da casi permisos de ser root porque te da todos los permisos de crear contenedores entonces vamos a crear un contenedor malicioso que nos de acceso a toda la maquina 
+Abrimos un servidor HTTP temporal en nuestra máquina atacante y descargamos el payload desde la víctima:
 
-![[Pasted image 20251102173328.png]]
+![http server download](images/pasted-20251102173731.png)
 
-Descargamos la herramienta que es lo primero que tenemos que haces para crear nuestro contenedor
+Registramos el archivo como una nueva imagen en LXD llamada `myimage`:
 
-Entramos a la rama de github para crear el contenedor como nos dice en la pagina de github
+![lxd image import](images/pasted-20251102173831.png)
 
-![[Pasted image 20251102173505.png]]
+Creamos un nuevo contenedor `ignite` usando `myimage`:
 
+![create container](images/pasted-20251102174038.png)
 
-![[Pasted image 20251102173601.png]]
+Configuramos el contenedor como **privilegiado** (flag `security.privileged=true`) para que el root dentro del contenedor tenga privilegios equivalentes a root fuera:
 
-ahora abrimos un servidor temporal para llevarnos el archivo a la maquina victima, esto hace que nuestra maquina atacante se convierta en un servidor de descargas temporal
+![set privileged](images/pasted-20251102174350.png)
 
+El paso clave (el exploit): montamos el disco raíz de la víctima (`source=/`) dentro del contenedor en `/mnt/root` para acceder al sistema de archivos host desde dentro del contenedor.
 
-nos descargamos el archivo desde el servidor que abrimos
+Encendemos el contenedor:
 
-![[Pasted image 20251102173731.png]]
+![start container](images/pasted-20251102174806.png)
 
+Ejecutamos `/bin/sh` dentro del contenedor para obtener una shell interactiva:
 
-aqui le dijimos a lxd que tenga ese archivo y registralo como una nueva imagen de contenedor y registralo con el nombre myimage
+![exec sh](images/pasted-20251102174916.png)
 
-![[Pasted image 20251102173831.png]]
+Ahora tenemos una shell dentro del contenedor:
 
+![container shell](images/pasted-20251102175149.png)
 
-aqui cree un nuevo contenedor llamado ignite usando myimage
-![[Pasted image 20251102174038.png]]
+Desde ahí elevamos privilegios a **root** (acceso al filesystem montado) y obtenemos la flag final:
 
-aqui le decimos que -c security.privileged=true o sea quiero que este contenedor se ejecute en modo privilegiado esto significa que el usuario root dentro del contenedor sera tratado com el usuario root fuera del contenedor 
+![root flag](images/pasted-20251102175221.png)
 
-
-aqui cambiamos la configuracion del contenedor ignite (que estaba apagado todavia)
-![[Pasted image 20251102174350.png]]
-
-y el TRUCO es este le dijimos a lxc toma el disco duro raiz "souce=/" de la maquina victima y montalo dentro del contenedor ignite en la carpeta /mnt/root
-
-aqui encendemos el contenedor
-![[Pasted image 20251102174806.png]]
-
-el contenedor ahora esta corriendo con el disco duro completo de la maquina victima montado en su interior
-
-
-aqui ejecutamos el comando /bin/sh dentro del contenedor
-![[Pasted image 20251102174916.png]]
-
-esto nos dio una terminal shell dentro del contenedor 
-
-![[Pasted image 20251102175149.png]]
-y aqui nos convertimos en root
-
-![[Pasted image 20251102175221.png]]
-aqui esta la flag
-
-sabiamos que estaba en /mnt/root/ porque fue el directorio que le pasamos anteriormente 
+> La flag se encuentra en `/mnt/root/` porque montamos el disco raíz de la máquina víctima en ese punto dentro del contenedor.
