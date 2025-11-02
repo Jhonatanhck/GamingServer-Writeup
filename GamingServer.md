@@ -11,7 +11,7 @@ Obtenemos estos resultados
 
 Agregamos la pagina al /etc/hosts
 
-![Hosts edit](images/Pasted%20image%2020251102155326.png)
+![Hosts edit](images/Screenshot%202025-11-02%20155312.png)
 
 y accedemos 
 
