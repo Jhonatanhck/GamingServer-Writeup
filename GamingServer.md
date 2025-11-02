@@ -1,29 +1,29 @@
 
-Empezamos con la el escaneo de puertos
+## Empezamos con el escaneo de puertos
 
-![[Pasted image 20251102154836.png]]
+![Nmap scan](images/pasted-20251102154836.png)
 
 Obtenemos estos resultados
 
-![[Pasted image 20251102154913.png]]
+![Nmap results](images/pasted-20251102154913.png)
 
-Agregamos la pagina al /etc/hosts
+Agregamos la página al `/etc/hosts`
 
-![[Pasted image 20251102155326.png]]
+![Hosts edit](images/pasted-20251102155326.png)
 
-y accedemos 
+y accedemos
 
-![[Pasted image 20251102155344.png]]
+![Web access](images/pasted-20251102155344.png)
 
-vemos los recursos de la pagina 
+Vemos los recursos de la página
 
-![[Pasted image 20251102155541.png]]
+![Page resources](images/pasted-20251102155541.png)
 
-vemos un mensaje de un usuario llamado john, el nombre tal vez nos sirva despues si queremos logearnos en algun lado
+Vemos un mensaje de un usuario llamado **john** — el nombre tal vez nos sirva después si queremos logearnos en algún lado.
 
-se me ocurre hacer un ataque de fuerza bruta de directorios 
+Se me ocurre hacer un ataque de fuerza bruta de directorios
 
-![[Pasted image 20251102160929.png]]
+![ffuf run](images/pasted-20251102160929.png)
  
 `ffuf` probó 9,228 nombres de la lista y te mostró solo los que obtuvieron una respuesta interesante
 
