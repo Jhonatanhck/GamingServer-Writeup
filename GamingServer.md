@@ -75,63 +75,64 @@ Se me ocurre hacer un ataque de fuerza bruta de directorios
 
 
 
-Continuando con el ataque 
+## Continuando con el ataque
 
-![[Pasted image 20251102161407.png]]
+![ffuf results](images/Pasted%20image%2020251102161407.png)
 
-vemos que el comando nos devolvio directorios ocultos que antes no veiamos 
+Vemos que el comando nos devolvió directorios ocultos que antes no veíamos.
 
-accedemos a /robots.txt y vemos esto
-![[Pasted image 20251102161731.png]]
+Accedemos a `/robots.txt` y vemos esto:
 
-Cuando accedemos a /uploads/ vemos esto
+![robots.txt](images/Pasted%20image%2020251102161731.png)
 
-![[Pasted image 20251102161858.png]]
+Cuando accedemos a `/uploads/` vemos esto:
 
-obtenemos 3 archivos 
+![uploads listing](images/Pasted%20image%2020251102161858.png)
 
-Una lista de contrasenas
+Obtenemos 3 archivos:
 
-![[Pasted image 20251102161943.png]]  
+Una lista de contraseñas
 
-Una especie de carta 
+![password list](images/Pasted%20image%2020251102161943.png)
 
-![[Pasted image 20251102162016.png]]
+Una especie de carta
+
+![note file](images/Pasted%20image%2020251102162016.png)
 
 Y un MEME xd
 
-![[Pasted image 20251102162051.png]]
+![meme](images/Pasted%20image%2020251102162051.png)
 
-Cuando queremos extraer datos de la imagen vemos que nos pide contrasena
+Cuando queremos extraer datos de la imagen vemos que nos pide contraseña:
 
-![[Pasted image 20251102162820.png]]
+![image password prompt](images/Pasted%20image%2020251102162820.png)
 
-ahora vamos al directorio http://IP/secret 
+Ahora vamos al directorio `http://IP/secret`:
 
-![[Pasted image 20251102163051.png]]
+![secret page](images/Pasted%20image%2020251102163051.png)
 
+Vemos que guarda una clave; la podemos usar haciendo fuerza bruta con la lista de contraseñas que obtuvimos anteriormente.
 
-y vemos que guarda una clave, la podemos usar haciendo fuerza bruta con la lista de contrasenas que obtuvimos anterior mente
+Ojo a estos pasos: me pusieron a pensar e investigar varias cosas.
 
-ojo a estos pasos que me pusieron a pensar y a investigar varias cosas
+Nos creamos un archivo con la private key (yo lo llamé `id_rsa`) que contiene la clave de arriba.
 
-Nos creamos un archivo con la private key yo lo llame "id_rsa" que contenga la clave de arriba 
+Ahora utilizamos un script de la herramienta John (ssh2john):
 
-ahora utilizamos un script de la herramienta john
+![ssh2john](images/Pasted%20image%2020251102164759.png)
 
-![[Pasted image 20251102164759.png]]
+Esto convierte `id_rsa` a un formato que John puede leer (hash):
 
-esto lo que hace es que convierte nuestro archivo id_rsa a un idioma que john lo pueda leer como lo es hash
+![id_rsa hash](images/Pasted%20image%2020251102164846.png)
 
-![[Pasted image 20251102164846.png]]
+El siguiente paso es usar John para crackear la contraseña:
 
-esta es la llave hasheada 
+![john cracking](images/Pasted%20image%2020251102164943.png)
 
-ahora el siguiente paso es volver a utilizar la herramienta john para crackear la contrasena 
+Le indicamos el archivo hasheado y `-w` con la lista de contraseñas que extrajimos de `/uploads/`:
 
-![[Pasted image 20251102164943.png]]
+![john wordlist](images/Pasted%20image%2020251102165042.png)
 
-le indicamos el archivo hasheado y -w para la lista de contrasenas que queremos que prueba, en nuestro caso fue la que extraimos de /uploads/
 
 ![[Pasted image 20251102165042.png]]
 
@@ -155,7 +156,6 @@ vemos que estamos en muchos grupos interesante
 
 ![[Pasted image 20251102165425.png]]
 
-
 investigando un poco descubri que lxd es un proceso que puede ser corrido como root
 
 despues de investigar mucho y preguntarle a chatgpt y a gemini muchas cosas
@@ -175,16 +175,13 @@ Entramos a la rama de github para crear el contenedor como nos dice en la pagina
 
 ahora abrimos un servidor temporal para llevarnos el archivo a la maquina victima, esto hace que nuestra maquina atacante se convierta en un servidor de descargas temporal
 
-
 nos descargamos el archivo desde el servidor que abrimos
 
 ![[Pasted image 20251102173731.png]]
 
-
 aqui le dijimos a lxd que tenga ese archivo y registralo como una nueva imagen de contenedor y registralo con el nombre myimage
 
 ![[Pasted image 20251102173831.png]]
-
 
 aqui cree un nuevo contenedor llamado ignite usando myimage
 ![[Pasted image 20251102174038.png]]
@@ -201,7 +198,6 @@ aqui encendemos el contenedor
 ![[Pasted image 20251102174806.png]]
 
 el contenedor ahora esta corriendo con el disco duro completo de la maquina victima montado en su interior
-
 
 aqui ejecutamos el comando /bin/sh dentro del contenedor
 ![[Pasted image 20251102174916.png]]
