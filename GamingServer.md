@@ -1,7 +1,7 @@
 
 Empezamos con la el escaneo de puertos
 
-![[Pasted image 20251102154836.png]]
+![nmap][Pasted/image%2020251102154836.png]
 
 Obtenemos estos resultados
 
