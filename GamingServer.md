@@ -1,29 +1,29 @@
 
 ## Empezamos con el escaneo de puertos
 
-![Nmap scan](images/20251102154836.png)
+![Nmap scan](images/pasted-20251102154836.png)
 
 Obtenemos estos resultados
 
-![Nmap results](images/20251102154913.png)
+![Nmap results](images/pasted-20251102154913.png)
 
 Agregamos la página al `/etc/hosts`
 
-![Hosts edit](images/20251102155326.png)
+![Hosts edit](images/pasted-20251102155326.png)
 
 y accedemos
 
-![Web access](images/20251102155344.png)
+![Web access](images/pasted-20251102155344.png)
 
 Vemos los recursos de la página
 
-![Page resources](images/20251102155541.png)
+![Page resources](images/pasted-20251102155541.png)
 
 Vemos un mensaje de un usuario llamado **john**, el nombre tal vez nos sirva después si queremos logearnos en algún lado.
 
 Se me ocurre hacer un ataque de fuerza bruta de directorios
 
-![ffuf run](images/20251102160929.png)
+![ffuf run](images/pasted-20251102160929.png)
  
 `ffuf` probó 9,228 nombres de la lista y te mostró solo los que obtuvieron una respuesta interesante
 
